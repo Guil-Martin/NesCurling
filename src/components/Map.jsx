@@ -1,9 +1,8 @@
 import { useGLTF } from "@react-three/drei";
 import { useEffect } from "react";
 
-export const Map = () => {
+export const Map = ({canvasRef}) => {
   const map = useGLTF("models/map.glb");
-
   useEffect(() => {
     map.scene.traverse((child) => {
       if (child.isMesh) {

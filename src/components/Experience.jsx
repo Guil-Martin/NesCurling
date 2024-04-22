@@ -1,6 +1,7 @@
 import { Environment, OrbitControls } from "@react-three/drei";
 
 export const Experience = () => {
+
   return (
     <>
       <directionalLight
