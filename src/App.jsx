@@ -1,31 +1,30 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Experience } from "./components/Experience";
-import { Map } from "./components/map";
 import { SoftShadows } from "@react-three/drei";
 import "./App.css";
+import { Suspense } from "react";
+import { Physics } from "@react-three/rapier";
+import MainUI from "./ui/MainUI";
 
 const App = () => {
-
-  const testFunction = () => {
-    console.log("canvasRef", canvasRef.current);
-  };
-
   return (
     <>
-      <button
-        onClick={() => testFunction()}
-        style={{ position: "absolute", zIndex: "1000", background: "red" }}
-      >
-        LETS TEST THIS
-      </button>
+      <MainUI />
       <Canvas
         shadows
-        camera={{ position: [0, 30, 0], fov: 30 }}
+        camera={{
+          position: [1.80, 3.96, -2.25],
+          fov: 40,
+        }}
       >
         <color attach="background" args={["#242424"]} />
-        <Map />
         <SoftShadows size={42} />
-        <Experience />
+        <Suspense>
+          {/* gravity={[0, -0.4, 0]} */}
+          <Physics debug>
+            <Experience />
+          </Physics>
+        </Suspense>
       </Canvas>
     </>
   );
