@@ -1,52 +1,94 @@
-import { Box, Environment, OrbitControls, useHelper } from "@react-three/drei";
+import { OrbitControls, useHelper } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
-import { useRef, useState } from "react";
-import { DirectionalLightHelper } from "three";
+import { useState } from "react";
+import { Vector3 } from "three";
 import { NesCapsule } from "./NesCapsule";
 import { NesTable } from "./NesTable";
-import CameraPositionHelper from "../helpers/CameraPositionHelper";
 import { useGameStore } from "../store/store";
 import Level_base from "../levels/level_base";
 
 export const Experience = () => {
-  const dirLightRef = useRef();
-  const [lightPos, setLightPos] = useState([25, 18, -25]);
-  useHelper(dirLightRef, DirectionalLightHelper, 0.5);
-  const capsules = useGameStore((state) => state.capsules);
-
   const [capsuleRefs] = useState([]);
   const addCapsuleRef = (ref) => capsuleRefs.push(ref);
 
-  const handlePush = (e, key) => {
+  const capsules = useGameStore((state) => state.capsules);
+  const isDragging = useGameStore((state) => state.isDragging);
+  const draggedCapsule = useGameStore((state) => state.draggedCapsule);
+  const setIsDragging = useGameStore((state) => state.setIsDragging);
+  const setDraggedCapsule = useGameStore((state) => state.setDraggedCapsule);
+
+  const getRigidBodyFromRefs = (rb) => {
+    return capsuleRefs.find((cap) => cap.userData.key === rb.key);
+  };
+
+  const shootAction = (e) => {
+    // console.log("shootAction e -", e);
+
+    if (isDragging && draggedCapsule) {
+      const capsulePos = draggedCapsule.translation();
+      const rayTargetPos = e.point;
+      const capsuleV = new Vector3(capsulePos.x, capsulePos.y, capsulePos.z);
+      const rayTargetV = new Vector3(
+        rayTargetPos.x,
+        capsulePos.y,
+        rayTargetPos.z
+      );
+
+      const direction = new Vector3();
+      direction.subVectors(rayTargetV, capsuleV).normalize();
+
+      const distance = capsuleV.distanceTo(rayTargetV);
+
+      const impulseFactor = 0.015;
+      const impulseMagnitude = impulseFactor * distance;
+      const impulse = direction.multiplyScalar(-impulseMagnitude);
+
+      // console.log("distance:", distance);
+      // console.log("impulseMagnitude:", impulseMagnitude);
+      // console.log("impulse:", impulse);
+
+      impulse.y = 0;
+
+      draggedCapsule.applyImpulse(impulse, true);
+    }
+
+    setDraggedCapsule(null);
+    setIsDragging(false);
+  };
+
+  const onClickCapsule = (e, capsule) => {
     e.stopPropagation();
-    const target = capsuleRefs.filter((cap) => cap.userData.key === key)
-    target[0]?.applyImpulse({ x: 0, y: 0, z: 0.0034}, true);
+    const foundCapsule = getRigidBodyFromRefs(capsule);
+    if (foundCapsule) {
+      setDraggedCapsule(foundCapsule);
+      setIsDragging(true);
+    }
+  };
+
+  const onCapsuleCollision = (manifold, target, other) => {
+    console.log("Collision at world position ", manifold.solverContactPoint(0));
+    if (other.rigidBodyObject) {
+      console.log(
+        target.rigidBodyObject.name,
+        " collided with ",
+        other.rigidBodyObject.name
+      );
+    }
   };
 
   return (
     <>
-      <OrbitControls />
-      <CameraPositionHelper event={"mousedown"} />
-      <directionalLight
-        ref={dirLightRef}
-        position={lightPos}
-        intensity={0.3}
-        castShadow
-        shadow-camera-near={0}
-        shadow-camera-far={80}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={25}
-        shadow-camera-bottom={-25}
-        shadow-mapSize-width={4096}
-        shadow-mapSize-height={4096}
-        shadow-bias={-0.0001}
-      />
+      <OrbitControls enabled={!isDragging} />
 
       <Level_base />
 
-      {/* <Examples /> */}
-      <RigidBody position={[0, 0, 0]} type="fixed" colliders={"hull"}>
+      <RigidBody
+        name="NesTable"
+        position={[0, 0, 0]}
+        type="fixed"
+        colliders={"hull"}
+        onPointerUp={(e) => shootAction(e)}
+      >
         <NesTable position-y={1} />
       </RigidBody>
 
@@ -55,31 +97,20 @@ export const Experience = () => {
           <RigidBody
             key={capsule.key}
             ref={addCapsuleRef}
-            userData={{key: capsule.key}}
-            onClick={(e) => handlePush(e, capsule.key)}
+            name={`Capsule ${capsule.key}`}
+            userData={{ key: capsule.key }}
+            onPointerDown={(e) => onClickCapsule(e, capsule)}
             position={capsule.position}
             colliders={false}
             includeInvisible
-            onCollisionEnter={({ manifold, target, other }) => {
-              // console.log(
-              //   "Collision at world position ",
-              //   manifold.solverContactPoint(0)
-              // );
-              if (other.rigidBodyObject) {
-                // console.log(
-                //   target.rigidBodyObject.name,
-                //   " collided with ",
-                //   other.rigidBodyObject.name
-                // );
-              }
-            }}
+            // onCollisionEnter={({ manifold, target, other }) =>
+            //   onCapsuleCollision(manifold, target, other)
+            // }
           >
             <NesCapsule color={capsule.color} />
           </RigidBody>
         ))}
       </group>
-
-      <Environment preset="sunset" />
     </>
   );
 };
