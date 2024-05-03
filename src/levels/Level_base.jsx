@@ -13,7 +13,7 @@ const Level_base = () => {
         userData={{ type: "floor" }}
         // onPointerUp={(e) => onMouseUp(e)}
       >
-        <Box position={[0, 1, 0]} args={[10, 0.1, 10]}>
+        <Box position={[0, 1, 0]} args={[20, 0.1, 20]}>
           <meshStandardMaterial color="grey" />
         </Box>
       </RigidBody>

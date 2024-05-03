@@ -1,5 +1,5 @@
-import { OrbitControls, useHelper } from "@react-three/drei";
-import { RigidBody } from "@react-three/rapier";
+import { Box, OrbitControls, useHelper } from "@react-three/drei";
+import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useState } from "react";
 import { Vector3 } from "three";
 import { NesCapsule } from "./NesCapsule";
@@ -90,6 +90,16 @@ export const Experience = () => {
         onPointerUp={(e) => shootAction(e)}
       >
         <NesTable position-y={1} />
+      </RigidBody>
+
+      <RigidBody name="ScoreZone" position={[0, 3, 2.667]} type="fixed">
+        <CuboidCollider
+          args={[1.6, 0.25, 0.33]}
+          // args={[5, 5, 5]}
+          sensor
+          onIntersectionEnter={() => console.log("Entered!")}
+          onIntersectionExit={() => console.log("Exited!")}
+        />
       </RigidBody>
 
       <group>

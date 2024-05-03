@@ -17,7 +17,7 @@ export const NesCapsule = (props) => {
         <mesh geometry={nodes.UCX_nesCapsule_02.geometry} visible={false} />
       </MeshCollider>
       <mesh
-      name="capsuyle"
+      name="capsule"
         // castShadow
         geometry={nodes.nesCapsule.geometry}
         // material={nodes.nesCapsule.material}
