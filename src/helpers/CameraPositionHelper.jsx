@@ -5,6 +5,8 @@ const CameraPositionHelper = ({ event }) => {
   const { camera } = useThree();
   const camearaRef = useRef(camera);
 
+  // const mainCamera = useGameStore((state) => state.mainCamera);
+
   useEffect(() => {
     const logCameraPosition = () => {
       const { x, y, z } = camearaRef.current.position;
