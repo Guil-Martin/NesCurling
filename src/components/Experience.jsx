@@ -22,6 +22,7 @@ export const Experience = () => {
   const setIsDragging = useGameStore((state) => state.setIsDragging);
   const setDraggedCapsule = useGameStore((state) => state.setDraggedCapsule);
   const endTurn = useGameStore((state) => state.endTurn);
+  const setScoreZoneRef = useGameStore((state) => state.setScoreZoneRef);
   const setWithinScoreZone = useGameStore((state) => state.setWithinScoreZone);
   const removeWithinScoreZone = useGameStore(
     (state) => state.removeWithinScoreZone
@@ -44,12 +45,14 @@ export const Experience = () => {
 
   const onClickCapsule = (e, capsule) => {
     e.stopPropagation();
-    const foundCapsule = getRigidBodyFromRefs(capsule);
-    if (foundCapsule) {
-      // window.addEventListener("mousemove", handleMouseMove);
-      setDraggedCapsule(foundCapsule);
-      setIsDragging(true);
-      // setDraggedPosition(foundCapsule.translation());
+    if (useGameStore.getState().gameState <= 1) {
+      const foundCapsule = getRigidBodyFromRefs(capsule);
+      if (foundCapsule) {
+        // window.addEventListener("mousemove", handleMouseMove);
+        setDraggedCapsule(foundCapsule);
+        setIsDragging(true);
+        // setDraggedPosition(foundCapsule.translation());
+      }
     }
   };
 
@@ -77,12 +80,15 @@ export const Experience = () => {
       const distance = capsuleV.distanceTo(rayTargetV);
 
       const impulseFactor = 0.015;
-      const impulseMagnitude = impulseFactor * distance;
+      const impulseMagnitude = Math.min(impulseFactor * distance, 0.012);
+
       const impulse = direction.multiplyScalar(-impulseMagnitude);
 
       // console.log("distance:", distance);
       // console.log("impulseMagnitude:", impulseMagnitude);
       // console.log("impulse:", impulse);
+
+      // 0.005094961215589478
 
       impulse.y = 0;
 
@@ -149,7 +155,12 @@ export const Experience = () => {
         <NesTable />
       </RigidBody>
 
-      <RigidBody name="scoreZone" position={[0, 2, 2.667]} type="fixed">
+      <RigidBody
+        name="scoreZone"
+        position={[0, 2, 2.667]}
+        type="fixed"
+        ref={setScoreZoneRef}
+      >
         <CuboidCollider
           args={[1.6, 0.25, 0.33]}
           sensor

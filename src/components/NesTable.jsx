@@ -7,7 +7,7 @@ import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
 export function NesTable(props) {
-  const { nodes, materials } = useGLTF("./models/nesTable.glb");
+  const { nodes, materials } = useGLTF("/models/nesTable.glb");
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -18,4 +18,4 @@ export function NesTable(props) {
   );
 }
 
-useGLTF.preload("./models/nesTable.glb");
+useGLTF.preload("/models/nesTable.glb");

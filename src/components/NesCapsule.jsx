@@ -10,7 +10,7 @@ import { MeshCollider } from "@react-three/rapier";
 import * as BufferGeometryUtils from "three/addons/utils/BufferGeometryUtils.js";
 
 export const NesCapsule = (props) => {
-  const { nodes, materials } = useGLTF("./models/nesCapsule.glb");
+  const { nodes, materials } = useGLTF("/models/nesCapsule.glb");
 
   // const mergedGeometry = useMemo(() => {
   //   return BufferGeometryUtils.mergeGeometries([
@@ -35,4 +35,4 @@ export const NesCapsule = (props) => {
   );
 };
 
-useGLTF.preload("./models/nesCapsule.glb");
+useGLTF.preload("/models/nesCapsule.glb");

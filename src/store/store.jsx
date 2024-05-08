@@ -57,6 +57,8 @@ export const useGameStore = create((set, get) => ({
   gameWinner: null,
   setGameWinner: (player) => set({ gameWinner: player }),
 
+  scoreZoneRef: null,
+  setScoreZoneRef: (ref) => set({ scoreZoneRef: ref }),
   withinScoreZone: [],
   setWithinScoreZone: (capsule) => {
     const present = get().withinScoreZone.find(

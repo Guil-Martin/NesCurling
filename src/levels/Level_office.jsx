@@ -7,7 +7,7 @@ import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
 export const Level_office = (props) => {
-  const { nodes, materials } = useGLTF("./models/level_office.glb");
+  const { nodes, materials } = useGLTF("/models/level_office.glb");
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.door.geometry} material={materials.M_Atlas} />

@@ -28,7 +28,7 @@ const UIInfos = () => {
   return (
     <div
       id="opt-infos"
-      className="absolute w-64 right-1 top-1 p-2 bg-slate-500 text-white"
+      className="absolute w-64 right-1 top-20 p-2 bg-slate-500 text-white"
     >
 
       <div className="flex justify-center" style={{ pointerEvents: "all" }}>
