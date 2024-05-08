@@ -1,31 +1,21 @@
 import React from "react";
 import { useGameStore } from "../store/store";
-import { NoToneMapping } from "three";
 import UIInfos from "./UIInfos";
+import { playerColors } from "../utils/gameData";
+import UIScore from "./UIScore";
+import UIWinner from "./UIWinner";
 
 const MainUI = () => {
   const gameState = useGameStore((state) => state.gameState);
-  const turn = useGameStore((state) => state.turn);
-  const nbPlayers = useGameStore((state) => state.nbPlayers);
   const nbCapsules = useGameStore((state) => state.nbCapsules);
-  const withinScoreZone = useGameStore((state) => state.withinScoreZone);
-
-  const setNbPlayers = useGameStore((state) => state.setNbPlayers);
+  const scoreToWin = useGameStore((state) => state.scoreToWin);
+  const setScoreToWin = useGameStore((state) => state.setScoreToWin);
   const players = useGameStore((state) => state.players);
   const onPlayerChange = useGameStore((state) => state.onPlayerChange);
   const addPlayer = useGameStore((state) => state.addPlayer);
   const removePlayer = useGameStore((state) => state.removePlayer);
-
   const setNbCapsules = useGameStore((state) => state.setNbCapsules);
-
   const startGame = useGameStore((state) => state.startGame);
-
-  const playerColors = {
-    1: "#4a7bef",
-    2: "#f23a3a",
-    3: "#efc74f",
-    4: "#42ce49",
-  };
 
   return (
     <div
@@ -34,6 +24,9 @@ const MainUI = () => {
       style={{ pointerEvents: "none" }}
     >
       <UIInfos />
+      <UIScore />
+
+      {gameState === 5 && <UIWinner />}
 
       {gameState === 0 && (
         <div
@@ -71,7 +64,7 @@ const MainUI = () => {
               <div className="flex py-1" key={player.slot}>
                 <div className="flex justify-center w-8">
                   <svg
-                    fill={playerColors[player.slot]}
+                    fill={playerColors[player.slot - 1]}
                     viewBox="0 0 32 32"
                     version="1.1"
                     xmlns="http://www.w3.org/2000/svg"
@@ -135,6 +128,26 @@ const MainUI = () => {
             />
           </div>
 
+          <div id="opt-scoreToWin" className="mt-2 w-full text-white font-bold">
+            <label className="flex flex-grow border-t border-gray-400">
+              Score à atteindre :
+            </label>
+            <div className="flex justify-between w-full">
+              <div>{scoreToWin}</div>
+              <div>20</div>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="20"
+              step="1"
+              value={scoreToWin}
+              className="h-2 w-full cursor-ew-resize appearance-none rounded-full bg-gray-200 disabled:cursor-not-allowed"
+              onChange={(e) => setScoreToWin(e.target.value)}
+              // Math.round(e.target.value / 10)
+            />
+          </div>
+
           <button
             className="inline-block mt-2 text-center px-2 py-2 text-white transition-all rounded-md shadow-xl bg-gradient-to-r from-purple-600 to-purple-500 hover:bg-gradient-to-b dark:shadow-purple-900 shadow-purple-200 hover:shadow-2xl hover:shadow-purple-400 hover:-tranneutral-y-px"
             onClick={() => startGame()}
@@ -143,8 +156,6 @@ const MainUI = () => {
           </button>
         </div>
       )}
-
-
     </div>
   );
 };

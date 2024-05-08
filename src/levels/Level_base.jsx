@@ -3,7 +3,7 @@ import { Box } from "@react-three/drei";
 
 const Level_base = () => {
   const onMouseUp = (e) => {
-    console.log("Floor mouseup e", e);
+    // console.log("Floor mouseup e", e);
   };
 
   return (
