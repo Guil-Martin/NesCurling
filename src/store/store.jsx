@@ -131,8 +131,6 @@ export const useGameStore = create((set, get) => ({
             else break;
           }
 
-          // TODO determine which player to play => capsule farther to the others or not in the score zone
-
           get().score[winCap.userData.owner.slot - 1] =
             get().score[winCap.userData.owner.slot - 1] + nbPoints;
         }
@@ -152,9 +150,63 @@ export const useGameStore = create((set, get) => ({
           get().setGameState(1);
         }
       } else {
-        get().setPlayingPlayer(
-          get().players[currentPlayerSlot === nbPlayers ? 0 : currentPlayerSlot]
+        // slot next player in line to play
+        let nextInLineSlot = get().players.find(
+          (player) =>
+            player.remaining > 0 &&
+            currentPlayerSlot !== get().players.length &&
+            player.slot > currentPlayerSlot
         );
+
+        // Set index for the player next in line
+        nextInLineSlot =
+          nextInLineSlot !== undefined
+            ? get().players.indexOf(nextInLineSlot)
+            : 0;
+
+        // Set array of players that have at least one capsule outside the zone
+        const outsideOfScoreZone = get().players.filter((player) =>
+          turnResult.every(
+            (cap) =>
+              player.slot !== cap.userData.owner.slot && player.remaining > 0
+          )
+        );
+
+        if (outsideOfScoreZone) {
+          // Is one of the outside of the zone players is the scheduled next player ?
+          const isNextInline = outsideOfScoreZone.find(
+            (player) =>
+              player.slot === nextInLineSlot + 1 && player.remaining > 0
+          );
+
+          // If not, find the player with the next slot in line
+          if (!isNextInline) {
+            const nextSlot = outsideOfScoreZone.find(
+              (player) =>
+                (player.slot === get().players.length &&
+                  player.slot >= nextInLineSlot) ||
+                player.slot >= nextInLineSlot
+            );
+
+            if (nextSlot) {
+              nextInLineSlot = get().players.indexOf(nextSlot);
+            } else {
+              // Every player has a capsule in the score zone, set the player that has the farthest capsule from the edge
+              for (let i = turnResult.length - 1; i >= 0; i--) {
+                const owner = turnResult[i].userData.owner;
+                if (owner.remaining > 0) {
+                  nextInLineSlot = get().players.findIndex(
+                    (player) => player.slot === owner.slot
+                  );
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        get().setPlayingPlayer(get().players[nextInLineSlot]);
+
         get().setTurn(get().turn + 1);
         get().addCapsule();
         get().setGameState(1);
