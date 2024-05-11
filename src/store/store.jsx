@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { playerColors } from "../utils/gameData";
+import { MathUtils } from "three";
 
 export const useGameStore = create((set, get) => ({
   debug: false,
@@ -7,6 +8,41 @@ export const useGameStore = create((set, get) => ({
 
   mainCamera: null,
   setMainCameraRef: (camearaRef) => set({ mainCamera: camearaRef }),
+
+  orbitControlsRef: null,
+  setOrbitControlsRef: (obRef) => set({ orbitControlsRef: obRef }),
+
+  setCameraAngle: (angle) => {
+    switch (angle) {
+      case 1: // Launch view
+        const szt = get().scoreZoneRef.translation();
+        get().orbitControlsRef.target.set(szt.x, szt.y, szt.z);
+        get().mainCamera.position.set(0, 4.5, -4.4);
+        get().mainCamera.rotation.set(
+          MathUtils.degToRad(33),
+          MathUtils.degToRad(-180),
+          0
+        );
+
+        break;
+      case 2: // Top view
+        get().mainCamera.position.set(0, 7.2, -0.1);
+        get().orbitControlsRef.target.set(0, 0, 0);
+        break;
+      case 3: // Follow capsule
+        const ct = get().capsuleRefs[0].translation();
+        get().mainCamera.position.set(ct.x - 2, ct.y + 3, ct.z - 1.5);
+        get().orbitControlsRef.target.set(ct.x, ct.y, ct.z);
+        // const { px, py } = state.pointer;
+        // get().orbitControlsRef.setAzimuthalAngle(-px * angleToRadians(60));
+        // get().orbitControlsRef.setPolarAngle((py + 0.5) * angleToRadians(90-45));
+        // get().orbitControlsRef.update();
+        break;
+
+      default:
+        break;
+    }
+  },
 
   selectedLevel: "base",
   setLevel: (level) => set({ selectedLevel: level }),

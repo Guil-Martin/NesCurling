@@ -14,7 +14,7 @@ const UIInfos = () => {
   const returnImgs = (player, idx) => {
     const imgs = [];
     for (let index = 0; index < player.remaining; index++) {
-      imgs.push(<img key={index} src={capsuleImgs[idx]} className="w-6" />);
+      imgs.push(<img key={index} src={capsuleImgs[idx]} className="my-1" style={{width: "1.4rem"}} />);
     }
     return imgs;
   };
@@ -53,9 +53,7 @@ const UIInfos = () => {
               <div>
                 P{player.slot} - {player.name}
               </div>
-              <div className="flex">{returnImgs(player, idx)}</div>
-              {/* <img src={capsuleImgs[idx]} className="w-6" /> */}
-              {/* <div className="w-6">{player.remaining} X</div> */}
+              <div className="flex flex-wrap">{returnImgs(player, idx)}</div>
             </div>
           );
         })}

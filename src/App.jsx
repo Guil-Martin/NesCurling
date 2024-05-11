@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Experience } from "./components/Experience";
-import { Environment, SoftShadows } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
+import { Stats } from '@react-three/drei'
 import "./App.css";
 import { Suspense } from "react";
 import { Physics } from "@react-three/rapier";
@@ -33,6 +34,7 @@ const App = () => {
           </Physics>
         </Suspense>
       </Canvas>
+      {debug && <Stats />}
     </>
   );
 };

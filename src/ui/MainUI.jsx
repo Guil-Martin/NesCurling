@@ -1,7 +1,7 @@
 import React from "react";
 import { useGameStore } from "../store/store";
-import UIInfos from "./UIInfos";
 import { playerColors } from "../utils/gameData";
+import UIInfos from "./UIInfos";
 import UIScore from "./UIScore";
 import UIWinner from "./UIWinner";
 import UITraining from "./UITraining";
@@ -32,7 +32,7 @@ const MainUI = () => {
       {gameState === 0 && (
         <div
           id="opt-wrapper"
-          className="absolute left-2 top-14 bg-teal-700 p-4 rounded-md flex flex-col items-center justify-center"
+          className="absolute left-2 top-2 bg-teal-700 p-4 rounded-md flex flex-col items-center justify-center"
           style={{ pointerEvents: "all", userSelect: "none" }}
         >
           <div className="w-full text-center pb-2 text-white font-bold text-xl">Démarrer une partie</div>
