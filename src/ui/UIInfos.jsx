@@ -3,17 +3,11 @@ import { useGameStore } from "../store/store";
 import { playerColors, capsuleImgs } from "../utils/gameData";
 
 const UIInfos = () => {
-  const setDebug = useGameStore((state) => state.setDebug);
-
   const gameState = useGameStore((state) => state.gameState);
   const turn = useGameStore((state) => state.turn);
   const round = useGameStore((state) => state.round);
   const nbCapsules = useGameStore((state) => state.nbCapsules);
   const scoreToWin = useGameStore((state) => state.scoreToWin);
-
-  const addCapsule = useGameStore((state) => state.addCapsule);
-  const removeCapsule = useGameStore((state) => state.removeCapsule);
-
   const withinScoreZone = useGameStore((state) => state.withinScoreZone);
   const players = useGameStore((state) => state.players);
 
@@ -30,37 +24,6 @@ const UIInfos = () => {
       id="opt-infos"
       className="absolute w-64 right-1 top-20 p-2 bg-slate-500 text-white"
     >
-
-      <div className="flex justify-center" style={{ pointerEvents: "all" }}>
-        <button
-          className="m-1 focus:outline-black w-24  text-white text-sm py-2.5 px-4 border-b-4 border-blue-800 bg-blue-800 hover:bg-blue-400"
-          onClick={() => setDebug()}
-        >
-          Debug
-        </button>
-      </div>
-
-      {gameState === 0 && (
-        <div
-          className="flex justify-center m-1"
-          style={{ pointerEvents: "all" }}
-        >
-          <button
-            className="m-1 focus:outline-black w-48 text-white text-sm py-2.5 px-4 border-b-4 border-blue-800 bg-blue-800 hover:bg-blue-400"
-            onClick={() => addCapsule()}
-          >
-            Ajouter capsule
-          </button>
-
-          <button
-            className="m-1 focus:outline-black w-48 text-white text-sm py-2.5 px-4 border-b-4 border-blue-800 bg-blue-800 hover:bg-blue-400"
-            onClick={() => removeCapsule()}
-          >
-            Supprimer capsules
-          </button>
-        </div>
-      )}
-
       <div>
         Game state : <span className="font-bold">{gameState}</span>
       </div>

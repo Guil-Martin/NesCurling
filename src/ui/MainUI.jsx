@@ -4,6 +4,7 @@ import UIInfos from "./UIInfos";
 import { playerColors } from "../utils/gameData";
 import UIScore from "./UIScore";
 import UIWinner from "./UIWinner";
+import UITraining from "./UITraining";
 
 const MainUI = () => {
   const gameState = useGameStore((state) => state.gameState);
@@ -25,7 +26,7 @@ const MainUI = () => {
     >
       <UIInfos />
       <UIScore />
-
+      {gameState === 0 && <UITraining />}
       {gameState === 5 && <UIWinner />}
 
       {gameState === 0 && (
@@ -34,6 +35,7 @@ const MainUI = () => {
           className="absolute left-2 top-14 bg-teal-700 p-4 rounded-md flex flex-col items-center justify-center"
           style={{ pointerEvents: "all", userSelect: "none" }}
         >
+          <div className="w-full text-center pb-2 text-white font-bold text-xl">Démarrer une partie</div>
           <div id="opt-nbplayers" className="w-full text-white font-bold">
             <label className="flex flex-grow border-t border-gray-400">
               Joueurs
@@ -124,7 +126,6 @@ const MainUI = () => {
               value={nbCapsules}
               className="h-2 w-full cursor-ew-resize appearance-none rounded-full bg-gray-200 disabled:cursor-not-allowed"
               onChange={(e) => setNbCapsules(e.target.value)}
-              // Math.round(e.target.value / 10)
             />
           </div>
 
@@ -144,7 +145,6 @@ const MainUI = () => {
               value={scoreToWin}
               className="h-2 w-full cursor-ew-resize appearance-none rounded-full bg-gray-200 disabled:cursor-not-allowed"
               onChange={(e) => setScoreToWin(e.target.value)}
-              // Math.round(e.target.value / 10)
             />
           </div>
 
