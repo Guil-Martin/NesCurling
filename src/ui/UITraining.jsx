@@ -7,7 +7,7 @@ const UITraining = () => {
   const removeCapsule = useGameStore((state) => state.removeCapsule);
 
   return (
-    <div className="absolute w-64 left-50 top-2 p-4 rounded-xl text-4xl bg-slate-500 text-white">
+    <div id="ui-training" className="absolute w-64 left-50 top-2 p-4 rounded-xl text-4xl bg-slate-500 text-white">
       <div
         className="flex flex-col justify-center items-center p-1"
         style={{ pointerEvents: "all" }}

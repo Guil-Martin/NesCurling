@@ -5,6 +5,7 @@ import UIInfos from "./UIInfos";
 import UIScore from "./UIScore";
 import UIWinner from "./UIWinner";
 import UITraining from "./UITraining";
+import UIGameHistory from "./UIGameHistory";
 
 const MainUI = () => {
   const gameState = useGameStore((state) => state.gameState);
@@ -20,18 +21,19 @@ const MainUI = () => {
 
   return (
     <div
-      id="mainUI"
+      id="ui-main"
       className="absolute left-0 top-0 z-50 w-full h-full mx-auto flex flex-col items-center"
       style={{ pointerEvents: "none" }}
     >
       <UIInfos />
       <UIScore />
       {gameState === 0 && <UITraining />}
+      {gameState === 0 && <UIGameHistory />}
       {gameState === 5 && <UIWinner />}
 
       {gameState === 0 && (
         <div
-          id="opt-wrapper"
+          id="ui-start"
           className="absolute left-2 top-2 bg-teal-700 p-4 rounded-md flex flex-col items-center justify-center"
           style={{ pointerEvents: "all", userSelect: "none" }}
         >

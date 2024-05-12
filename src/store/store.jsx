@@ -3,6 +3,22 @@ import { playerColors } from "../utils/gameData";
 import { MathUtils } from "three";
 
 export const useGameStore = create((set, get) => ({
+  gameHistory: localStorage.getItem("gameHistory")
+    ? JSON.parse(localStorage.getItem("gameHistory"))
+    : [],
+  addToGameHistory: (gameData) => {
+    const newHistory = [gameData, ...get().gameHistory];
+    localStorage.setItem("gameHistory", JSON.stringify(newHistory));
+    set({ gameHistory: newHistory });
+  },
+  removeGameHistory: (id) => {
+    const newHistory = get().gameHistory.filter(
+      (gameData) => gameData.id !== id
+    );
+    localStorage.setItem("gameHistory", newHistory);
+    set({ gameHistory: newHistory });
+  },
+
   debug: false,
   setDebug: () => set({ debug: !get().debug }),
 
@@ -174,6 +190,19 @@ export const useGameStore = create((set, get) => ({
         const winner = get().score.find((sc) => sc >= get().scoreToWin);
         if (winner !== undefined) {
           get().setGameWinner(get().players[get().score.indexOf(winner)]);
+
+          const gameData = {
+            id: Date.now(),
+            players: get().players.map((player) => player.name),
+            winner: get().gameWinner.slot,
+            score: get().score,
+            turns: get().turn,
+            round: get().round,
+            nbCapsules: get().nbCapsules,
+            scoreToWin: get().scoreToWin,
+          };
+          get().addToGameHistory(gameData);
+
           get().setGameState(5);
         } else {
           set({ round: get().round + 1 });

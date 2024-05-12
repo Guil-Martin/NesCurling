@@ -2,7 +2,7 @@ import React from 'react'
 
 const UISelectLevel = () => {
   return (
-    <div>UISelectLevel</div>
+    <div id="ui-selectlvl">UISelectLevel</div>
   )
 }
 
