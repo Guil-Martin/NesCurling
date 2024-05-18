@@ -9,7 +9,7 @@ import { MeshStandardMaterial } from "three";
 import { MeshCollider } from "@react-three/rapier";
 
 export const NesCapsule = (props) => {
-  const { nodes, materials } = useGLTF("/models/nesCapsule.glb");
+  const { nodes, materials } = useGLTF(`${import.meta.env.BASE_URL}models/nesCapsule.glb`);
   return (
     <group {...props} dispose={null}>
       <MeshCollider type="hull">
@@ -26,4 +26,4 @@ export const NesCapsule = (props) => {
   );
 };
 
-useGLTF.preload("/models/nesCapsule.glb");
+useGLTF.preload(`${import.meta.env.BASE_URL}models/nesCapsule.glb`);
