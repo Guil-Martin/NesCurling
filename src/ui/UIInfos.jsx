@@ -3,18 +3,21 @@ import { useGameStore } from "../store/store";
 import { playerColors, capsuleImgs } from "../utils/gameData";
 
 const UIInfos = () => {
-  const gameState = useGameStore((state) => state.gameState);
-  const turn = useGameStore((state) => state.turn);
   const round = useGameStore((state) => state.round);
-  const nbCapsules = useGameStore((state) => state.nbCapsules);
-  const scoreToWin = useGameStore((state) => state.scoreToWin);
-  const withinScoreZone = useGameStore((state) => state.withinScoreZone);
   const players = useGameStore((state) => state.players);
+  const score = useGameStore((state) => state.score);
 
   const returnImgs = (player, idx) => {
     const imgs = [];
     for (let index = 0; index < player.remaining; index++) {
-      imgs.push(<img key={index} src={capsuleImgs[idx]} className="my-1" style={{width: "1.4rem"}} />);
+      imgs.push(
+        <img
+          key={index}
+          src={capsuleImgs[idx]}
+          className="my-1"
+          style={{ width: "1.4rem" }}
+        />
+      );
     }
     return imgs;
   };
@@ -22,61 +25,50 @@ const UIInfos = () => {
   return (
     <div
       id="ui-infos"
-      className="absolute w-64 right-1 top-20 p-2 bg-slate-500 text-white"
+      className="absolute w-auto min-w-72 right-50 top-0 bg-slate-500 text-white"
     >
-      <div>
-        Game state : <span className="font-bold">{gameState}</span>
-      </div>
-      <div>
-        Nombre de capsules : <span className="font-bold">{nbCapsules}</span>
-      </div>
-      <div>
-        Score à atteindre : <span className="font-bold">{scoreToWin}</span>
-      </div>
-      <div>
-        Tour : <span className="font-bold">{turn}</span>
-      </div>
-      <div>
-        Manche : <span className="font-bold">{round}</span>
-      </div>
+      <div className="flex flex-wrap items-center justify-between">
+        <div className="ml-2">
+          Manche : <span className="font-bold">{round}</span>
+        </div>
 
-      <div className="bg-slate-700 mt-2 p-2">
-        <div>Joueurs :</div>
-
-        {players.map((player, idx) => {
-          return (
+        <div className="flex ml-2">
+          {players.map((player, idx) => (
             <div
+              className="bg-slate-700 mx-1 px-1 rounded-md border-1 border-black"
               key={idx}
-              className="bg bg"
               style={{ color: playerColors[idx] }}
             >
-              <div>
-                P{player.slot} - {player.name}
+              {player.name}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex text-xl">
+          {score.map((ps, idx) => {
+            return (
+              <div key={idx} className="flex items-center">
+                {idx !== 0 ? <span className="">-</span> : null}
+                <div
+                  className="px-2 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
+                  style={{ color: playerColors[idx] }}
+                >
+                  {ps}
+                </div>
               </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="bg-slate-700 p-1 flex flex-wrap">
+        {players.map((player, idx) => {
+          return (
+            <div key={idx} style={{ color: playerColors[idx] }}>
               <div className="flex flex-wrap">{returnImgs(player, idx)}</div>
             </div>
           );
         })}
-      </div>
-      <div className="bg-slate-700 mt-2 p-2">
-        <div>Zone de score:</div>
-        <ul>
-          {withinScoreZone.map((capsule) => (
-            <div
-              key={capsule.userData.key}
-              className="flex"
-              style={{ color: playerColors[capsule.userData.owner.slot - 1] }}
-            >
-              <div>
-                <img
-                  src={capsuleImgs[capsule.userData.owner.slot - 1]}
-                  className="w-6"
-                />
-              </div>
-              <div>{"- " + capsule.userData.key}</div>
-            </div>
-          ))}
-        </ul>
       </div>
     </div>
   );

@@ -1,21 +1,26 @@
 import { Plane } from "@react-three/drei";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
-import { useRef, useState } from "react";
-import { Vector3 } from "three";
+import { useEffect, useRef } from "react";
+import { Vector2, Vector3, Raycaster } from "three";
 import { NesCapsule } from "./NesCapsule";
 import { NesTable } from "./NesTable";
 import { useGameStore } from "../store/store";
-// import Level_base from "../levels/level_base";
 import { Level_office } from "../levels/level_office";
-import { useFrame } from "@react-three/fiber";
+import { NesCapsulePlaceholder } from "./NesCapsulePlaceholder";
+import { playerColors } from "../utils/gameData";
 
 export const Experience = () => {
+  const gameState = useGameStore((state) => state.gameState);
   const setGameState = useGameStore((state) => state.setGameState);
-  // const selectedLevel = useGameStore((state) => state.selectedLevel);
-
+  const capsulePlaceholderRef = useGameStore(
+    (state) => state.capsulePlaceholderRef
+  );
+  const setCapsulePlaceholderRef = useGameStore(
+    (state) => state.setCapsulePlaceholderRef
+  );
   const capsuleRefs = useGameStore((state) => state.capsuleRefs);
+  const addCapsule = useGameStore((state) => state.addCapsule);
   const addCapsuleRef = useGameStore((state) => state.addCapsuleRef);
-
   const capsules = useGameStore((state) => state.capsules);
   const isDragging = useGameStore((state) => state.isDragging);
   const draggedCapsule = useGameStore((state) => state.draggedCapsule);
@@ -27,11 +32,10 @@ export const Experience = () => {
   const removeWithinScoreZone = useGameStore(
     (state) => state.removeWithinScoreZone
   );
-
-  // let mousePosition = { x: 0, y: 0 };
-  // const handleMouseMove = (e) => {
-  //   mousePosition = { x: e.clientX, y: e.clientY };
-  // };
+  const setPlacementPlaneRef = useGameStore(
+    (state) => state.setPlacementPlaneRef
+  );
+  const setCameraAngle = useGameStore((state) => state.setCameraAngle);
 
   let nextTurnInterval = null;
   const onNextTurnInterval = () => {
@@ -43,21 +47,38 @@ export const Experience = () => {
     return capsuleRefs.find((cap) => cap.userData.key === rb.key);
   };
 
+  const placeCapsule = (e) => {
+    if (gameState === 3) {
+      addCapsule(e.point, true);
+      setGameState(1);
+      if (e.point.x > 0.6) {
+        setCameraAngle(2);
+      } else if (e.point.x < -0.6) {
+        setCameraAngle(1);
+      } else {
+        setCameraAngle(0);
+      }
+    }
+  };
+
   const onClickCapsule = (e, capsule) => {
     e.stopPropagation();
     if (useGameStore.getState().gameState <= 1) {
       const foundCapsule = getRigidBodyFromRefs(capsule);
       if (foundCapsule) {
-        // window.addEventListener("mousemove", handleMouseMove);
         setDraggedCapsule(foundCapsule);
         setIsDragging(true);
-        // setDraggedPosition(foundCapsule.translation());
       }
     }
   };
 
   const shootAction = (e) => {
-    if (isDragging && draggedCapsule) {
+    e.stopPropagation();
+    if (
+      isDragging &&
+      draggedCapsule &&
+      draggedCapsule.userData.key === capsuleRefs[0].userData.key
+    ) {
       if (
         useGameStore.getState().gameState > 0 &&
         useGameStore.getState().gameState !== 2
@@ -122,21 +143,35 @@ export const Experience = () => {
     }
   };
 
-  useFrame((state, delta) => {
-    if (isDragging && draggedCapsule) {
-      const intersects = state.raycaster.intersectObjects(
-        draggingPlane.current
+  const draggingPlane = useRef();
+
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      if (!capsulePlaceholderRef) return;
+
+      const raycaster = new Raycaster();
+      const mouse = new Vector2();
+
+      // Convert mouse position to normalized device coordinates (-1 to +1)
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, useGameStore.getState().mainCamera);
+      const intersects = raycaster.intersectObject(
+        useGameStore.getState().placementPlaneRef
       );
 
-      // console.log("intersects", intersects);
-
-      if (intersects.length) {
-        setMousePosition(intersects[0].point);
+      if (intersects.length > 0) {
+        const point = intersects[0].point;
+        const clampedX = Math.max(-5, Math.min(5, point.x));
+        const clampedZ = Math.max(-5, Math.min(5, point.z));
+        capsulePlaceholderRef.position.set(clampedX, 1.9, clampedZ);
       }
-    }
-  });
+    };
 
-  const draggingPlane = useRef();
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [capsulePlaceholderRef]);
 
   return (
     <>
@@ -169,6 +204,15 @@ export const Experience = () => {
         />
       </RigidBody>
 
+      {gameState === 3 && (
+        <NesCapsulePlaceholder
+          ref={setCapsulePlaceholderRef}
+          position={[0, 1.9, -2.5]}
+          name="capsulePlaceholder"
+          color={playerColors[useGameStore.getState().playingPlayer.slot - 1]}
+        />
+      )}
+
       <Plane
         name="draggingPlane"
         ref={draggingPlane}
@@ -178,6 +222,22 @@ export const Experience = () => {
         onPointerUp={(e) => shootAction(e)}
       >
         <meshBasicMaterial attach="material" transparent opacity={0} />
+      </Plane>
+
+      <Plane
+        name="placingPlane"
+        ref={setPlacementPlaneRef}
+        args={[3.01, 0.53]}
+        position={[0, 1.832, -2.61]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerDown={placeCapsule}
+      >
+        <meshBasicMaterial
+          attach="material"
+          color={"yellow"}
+          transparent
+          opacity={gameState === 3 ? 1 : 0}
+        />
       </Plane>
 
       <group>

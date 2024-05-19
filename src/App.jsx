@@ -1,7 +1,7 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Experience } from "./components/Experience";
 import { Environment } from "@react-three/drei";
-import { Stats } from '@react-three/drei'
+import { Stats } from "@react-three/drei";
 import "./App.css";
 import { Suspense } from "react";
 import { Physics } from "@react-three/rapier";
@@ -15,20 +15,11 @@ const App = () => {
   return (
     <>
       <MainUI />
-      <Canvas
-      // shadows
-      // camera={{
-      //   position: [0.56, 3.29, -0.74],
-      //   // position: [1.80, 3.96, -2.25],
-      //   fov: 70,
-      // }}
-      >
+      <Canvas>
         <Cameras />
-        {/* <SoftShadows size={5} /> */}
         <Environment preset="city" />
         <color attach="background" args={["#242424"]} />
         <Suspense>
-          {/* gravity={[0, -0.4, 0]} */}
           <Physics debug={debug}>
             <Experience />
           </Physics>

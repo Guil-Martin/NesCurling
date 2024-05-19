@@ -2,10 +2,10 @@ import React from "react";
 import { useGameStore } from "../store/store";
 import { playerColors } from "../utils/gameData";
 import UIInfos from "./UIInfos";
-import UIScore from "./UIScore";
 import UIWinner from "./UIWinner";
 import UITraining from "./UITraining";
 import UIGameHistory from "./UIGameHistory";
+import UICameraAngles from "./UICameraAngles";
 
 const MainUI = () => {
   const gameState = useGameStore((state) => state.gameState);
@@ -25,8 +25,8 @@ const MainUI = () => {
       className="absolute left-0 top-0 z-50 w-full h-full mx-auto flex flex-col items-center"
       style={{ pointerEvents: "none" }}
     >
-      <UIInfos />
-      <UIScore />
+      <UICameraAngles />
+      {gameState > 0 && <UIInfos />}
       {gameState === 0 && <UITraining />}
       {gameState === 0 && <UIGameHistory />}
       {gameState === 5 && <UIWinner />}
@@ -37,7 +37,9 @@ const MainUI = () => {
           className="absolute left-2 top-2 bg-teal-700 p-4 rounded-md flex flex-col items-center justify-center"
           style={{ pointerEvents: "all", userSelect: "none" }}
         >
-          <div className="w-full text-center pb-2 text-white font-bold text-xl">Démarrer une partie</div>
+          <div className="w-full text-center pb-2 text-white font-bold text-xl">
+            Démarrer une partie
+          </div>
           <div id="opt-nbplayers" className="w-full text-white font-bold">
             <label className="flex flex-grow border-t border-gray-400">
               Joueurs
@@ -88,7 +90,7 @@ const MainUI = () => {
 
                 <button
                   className="flex justify-center w-8 bg-slate-400"
-                  onClick={() => removePlayer(player.slot)}
+                  onClick={() => player.slot !== 1 && removePlayer(player.slot)}
                 >
                   <svg
                     viewBox="0 0 1024 1024"
@@ -151,7 +153,7 @@ const MainUI = () => {
           </div>
 
           <button
-            className="inline-block mt-2 text-center px-2 py-2 text-white transition-all rounded-md shadow-xl bg-gradient-to-r from-purple-600 to-purple-500 hover:bg-gradient-to-b dark:shadow-purple-900 shadow-purple-200 hover:shadow-2xl hover:shadow-purple-400 hover:-tranneutral-y-px"
+            className="inline-block w-1/2 mt-4 text-center p-2 text-white rounded-md shadow-xl bg-gradient-to-r from-purple-600 to-purple-500"
             onClick={() => startGame()}
           >
             Démarrer

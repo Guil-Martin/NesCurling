@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { playerColors } from "../utils/gameData";
-import { MathUtils } from "three";
 
 export const useGameStore = create((set, get) => ({
   gameHistory: localStorage.getItem("gameHistory")
@@ -29,30 +28,38 @@ export const useGameStore = create((set, get) => ({
   setOrbitControlsRef: (obRef) => set({ orbitControlsRef: obRef }),
 
   setCameraAngle: (angle) => {
-    switch (angle) {
-      case 1: // Launch view
-        const szt = get().scoreZoneRef.translation();
-        get().orbitControlsRef.target.set(szt.x, szt.y, szt.z);
-        get().mainCamera.position.set(0, 4.5, -4.4);
-        get().mainCamera.rotation.set(
-          MathUtils.degToRad(33),
-          MathUtils.degToRad(-180),
-          0
-        );
+    const szt = get().scoreZoneRef.translation();
 
+    switch (angle) {
+      case 0: // Launch view
+        get().mainCamera.position.set(0, 4.5, -4.4);
+        get().orbitControlsRef.target.set(szt.x, szt.y, szt.z - 4);
+        // get().mainCamera.rotation.set(
+        //   MathUtils.degToRad(33),
+        //   MathUtils.degToRad(-180),
+        //   0
+        // );
         break;
-      case 2: // Top view
+      case 1: // Launch view left
+        get().mainCamera.position.set(-2, 4.5, -4.4);
+        get().orbitControlsRef.target.set(szt.x - 1, szt.y, szt.z - 4);
+        break;
+      case 2: // Launch view right
+        get().mainCamera.position.set(2, 4.5, -4.4);
+        get().orbitControlsRef.target.set(szt.x + 1, szt.y, szt.z - 4);
+        break;
+      case 3: // top view
         get().mainCamera.position.set(0, 7.2, -0.1);
         get().orbitControlsRef.target.set(0, 0, 0);
         break;
-      case 3: // Follow capsule
+      case 4: // score zone view
+        get().mainCamera.position.set(szt.x, szt.y + 3, szt.z - 0.2);
+        get().orbitControlsRef.target.set(szt.x, szt.y, szt.z);
+        break;
+      case 5: // capsule focus view
         const ct = get().capsuleRefs[0].translation();
         get().mainCamera.position.set(ct.x - 2, ct.y + 3, ct.z - 1.5);
         get().orbitControlsRef.target.set(ct.x, ct.y, ct.z);
-        // const { px, py } = state.pointer;
-        // get().orbitControlsRef.setAzimuthalAngle(-px * angleToRadians(60));
-        // get().orbitControlsRef.setPolarAngle((py + 0.5) * angleToRadians(90-45));
-        // get().orbitControlsRef.update();
         break;
 
       default:
@@ -63,8 +70,15 @@ export const useGameStore = create((set, get) => ({
   selectedLevel: "base",
   setLevel: (level) => set({ selectedLevel: level }),
 
+  /* 
+  0 : Nothing
+  1 : Game start
+  2 : During capsule shot
+  3 : Capsule placement
+  */
   gameState: 0,
   setGameState: (newGameState) => set({ gameState: newGameState }),
+
   players: [
     { slot: 1, name: "Player 1", capsuleSkin: playerColors[0], remaining: 0 },
   ],
@@ -109,6 +123,12 @@ export const useGameStore = create((set, get) => ({
   gameWinner: null,
   setGameWinner: (player) => set({ gameWinner: player }),
 
+  placementPlaneRef: null,
+  setPlacementPlaneRef: (ref) => set({ placementPlaneRef: ref }),
+
+  capsulePlaceholderRef: null,
+  setCapsulePlaceholderRef: (ref) => set({ capsulePlaceholderRef: ref }),
+
   scoreZoneRef: null,
   setScoreZoneRef: (ref) => set({ scoreZoneRef: ref }),
   withinScoreZone: [],
@@ -147,10 +167,10 @@ export const useGameStore = create((set, get) => ({
     get().setPlayingPlayer(players[0]);
     get().removeCapsule();
     get().setScore(get().players.map(() => 0));
-    get().addCapsule();
     get().setTurn(1);
     get().setRound(1);
-    get().setGameState(1);
+    get().setCameraAngle(3);
+    get().setGameState(3);
   },
 
   turn: 0,
@@ -158,7 +178,7 @@ export const useGameStore = create((set, get) => ({
   endTurn: () => {
     // Check if game started
     if (get().gameState > 0) {
-      const nbPlayers = get().players.length;
+      // const nbPlayers = get().players.length;
 
       const currentPlayerSlot = get().playingPlayer.slot;
       get().playingPlayer.remaining -= 1;
@@ -211,8 +231,8 @@ export const useGameStore = create((set, get) => ({
             player.remaining = get().nbCapsules;
           });
           get().setPlayingPlayer(get().players[0]);
-          get().addCapsule();
-          get().setGameState(1);
+          get().setCameraAngle(3);
+          get().setGameState(3);
         }
       } else {
         // slot next player in line to play
@@ -269,12 +289,10 @@ export const useGameStore = create((set, get) => ({
             }
           }
         }
-
         get().setPlayingPlayer(get().players[nextInLineSlot]);
-
         get().setTurn(get().turn + 1);
-        get().addCapsule();
-        get().setGameState(1);
+        get().setCameraAngle(3);
+        get().setGameState(3);
       }
     }
   },
@@ -299,14 +317,15 @@ export const useGameStore = create((set, get) => ({
   capsuleRefs: [],
   addCapsuleRef: (ref) => set({ capsuleRefs: [ref, ...get().capsuleRefs] }),
   capsules: [],
-  addCapsule: () =>
+  addCapsule: (position, playable) =>
     set({
       capsules: [
         ...get().capsules,
         {
           key: "capsule_" + Date.now(),
+          playable: playable ? playable : false,
           owner: get().playingPlayer ? get().playingPlayer : get().players[0],
-          position: [-0.5 + Math.random(), 1.8, -2.5],
+          position: position ? position : [-0.5 + Math.random(), 1.8, -2.5],
           color: get().playingPlayer
             ? get().playingPlayer.capsuleSkin
             : get().players[0].capsuleSkin, // "#" + Math.floor(Math.random() * 0xffffff).toString(16),

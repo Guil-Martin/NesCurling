@@ -7,7 +7,10 @@ const UITraining = () => {
   const removeCapsule = useGameStore((state) => state.removeCapsule);
 
   return (
-    <div id="ui-training" className="absolute w-64 left-50 top-2 p-4 rounded-xl text-4xl bg-slate-500 text-white">
+    <div
+      id="ui-training"
+      className="absolute w-64 right-2 top-2 p-4 rounded-xl text-4xl bg-slate-500 text-white"
+    >
       <div
         className="flex flex-col justify-center items-center p-1"
         style={{ pointerEvents: "all" }}
@@ -25,7 +28,7 @@ const UITraining = () => {
 
         <button
           className="m-1 focus:outline-black rounded-xl w-48 text-white text-sm px-4 border-b-4 border-blue-800 bg-blue-800 hover:bg-blue-400"
-          onClick={() => addCapsule()}
+          onClick={() => addCapsule(undefined, true)}
         >
           Ajouter capsule
         </button>
