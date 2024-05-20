@@ -317,13 +317,12 @@ export const useGameStore = create((set, get) => ({
   capsuleRefs: [],
   addCapsuleRef: (ref) => set({ capsuleRefs: [ref, ...get().capsuleRefs] }),
   capsules: [],
-  addCapsule: (position, playable) =>
+  addCapsule: (position) =>
     set({
       capsules: [
         ...get().capsules,
         {
           key: "capsule_" + Date.now(),
-          playable: playable ? playable : false,
           owner: get().playingPlayer ? get().playingPlayer : get().players[0],
           position: position ? position : [-0.5 + Math.random(), 1.8, -2.5],
           color: get().playingPlayer

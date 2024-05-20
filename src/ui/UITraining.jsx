@@ -1,10 +1,12 @@
 import React from "react";
 import { useGameStore } from "../store/store";
+import { capsuleImgs, playerColors } from "../utils/gameData";
 
 const UITraining = () => {
   const setDebug = useGameStore((state) => state.setDebug);
   const addCapsule = useGameStore((state) => state.addCapsule);
   const removeCapsule = useGameStore((state) => state.removeCapsule);
+  const withinScoreZone = useGameStore((state) => state.withinScoreZone);
 
   return (
     <div
@@ -28,7 +30,7 @@ const UITraining = () => {
 
         <button
           className="m-1 focus:outline-black rounded-xl w-48 text-white text-sm px-4 border-b-4 border-blue-800 bg-blue-800 hover:bg-blue-400"
-          onClick={() => addCapsule(undefined, true)}
+          onClick={() => addCapsule()}
         >
           Ajouter capsule
         </button>
@@ -39,6 +41,20 @@ const UITraining = () => {
         >
           Supprimer capsules
         </button>
+
+        <div className="bg-slate-700 mt-2 p-2 text-xs w-full">
+          <div>Zone de score:</div>
+          <div className="flex">
+            {withinScoreZone.map((capsule) => (
+              <div key={capsule.userData.key}>
+                <img
+                  src={capsuleImgs[capsule.userData.owner.slot - 1]}
+                  className="w-6"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

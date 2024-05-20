@@ -16,7 +16,7 @@ const UICameraAngles = () => {
           <button
             key={idx}
             type="button"
-            className="border bg-slate-700 hover:bg-blue-500 rounded-lg p-2 text-center inline-flex items-center dark:border-blue-300 dark:hover:bg-blue-300"
+            className="border mt-1 bg-slate-700 hover:bg-blue-500 rounded-lg p-2 text-center inline-flex items-center dark:border-blue-300 dark:hover:bg-blue-300"
             onClick={() => setCameraAngle(idx)}
           >
             <img src={img} className="w-10 h-10" />

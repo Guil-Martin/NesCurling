@@ -25,11 +25,11 @@ const UIInfos = () => {
   return (
     <div
       id="ui-infos"
-      className="absolute w-auto min-w-72 right-50 top-0 bg-slate-500 text-white"
+      className="absolute w-auto min-w-72 rounded-b-md right-50 top-0 bg-slate-500 text-white"
     >
       <div className="flex flex-wrap items-center justify-between">
-        <div className="ml-2">
-          Manche : <span className="font-bold">{round}</span>
+        <div className="text-lg bg-slate-700 px-1 rounded-r-md">
+          Manche <span className="font-bold">{round}</span>
         </div>
 
         <div className="flex ml-2">
@@ -44,13 +44,13 @@ const UIInfos = () => {
           ))}
         </div>
 
-        <div className="flex text-xl">
+        <div className="flex text-lg bg-slate-700 ml-2 px-1 rounded-l-md">
           {score.map((ps, idx) => {
             return (
               <div key={idx} className="flex items-center">
-                {idx !== 0 ? <span className="">-</span> : null}
+                {idx !== 0 ? <span className="px-1">-</span> : null}
                 <div
-                  className="px-2 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
+                  className="drop-shadow-[0_2px_2px_rgba(0,0,0,1)]"
                   style={{ color: playerColors[idx] }}
                 >
                   {ps}
@@ -61,7 +61,7 @@ const UIInfos = () => {
         </div>
       </div>
 
-      <div className="bg-slate-700 p-1 flex flex-wrap">
+      <div className="bg-slate-700 rounded-b-md p-1 flex flex-wrap">
         {players.map((player, idx) => {
           return (
             <div key={idx} style={{ color: playerColors[idx] }}>

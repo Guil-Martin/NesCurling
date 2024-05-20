@@ -1,6 +1,6 @@
-import { Plane } from "@react-three/drei";
+import { Line, Plane } from "@react-three/drei";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Vector2, Vector3, Raycaster } from "three";
 import { NesCapsule } from "./NesCapsule";
 import { NesTable } from "./NesTable";
@@ -8,6 +8,7 @@ import { useGameStore } from "../store/store";
 import { Level_office } from "../levels/level_office";
 import { NesCapsulePlaceholder } from "./NesCapsulePlaceholder";
 import { playerColors } from "../utils/gameData";
+import DragLine from "./DragLine";
 
 export const Experience = () => {
   const gameState = useGameStore((state) => state.gameState);
@@ -36,6 +37,7 @@ export const Experience = () => {
     (state) => state.setPlacementPlaneRef
   );
   const setCameraAngle = useGameStore((state) => state.setCameraAngle);
+  const draggingPlane = useRef();
 
   let nextTurnInterval = null;
   const onNextTurnInterval = () => {
@@ -49,7 +51,7 @@ export const Experience = () => {
 
   const placeCapsule = (e) => {
     if (gameState === 3) {
-      addCapsule(e.point, true);
+      addCapsule(e.point);
       setGameState(1);
       if (e.point.x > 0.6) {
         setCameraAngle(2);
@@ -65,8 +67,12 @@ export const Experience = () => {
     e.stopPropagation();
     if (useGameStore.getState().gameState <= 1) {
       const foundCapsule = getRigidBodyFromRefs(capsule);
-      if (foundCapsule) {
+      if (
+        foundCapsule &&
+        foundCapsule.userData.key === capsuleRefs[0].userData.key
+      ) {
         setDraggedCapsule(foundCapsule);
+        document.body.style.cursor = "grabbing";
         setIsDragging(true);
       }
     }
@@ -100,15 +106,14 @@ export const Experience = () => {
 
       const distance = capsuleV.distanceTo(rayTargetV);
 
-      const impulseFactor = 0.015;
-      const impulseMagnitude = Math.min(impulseFactor * distance, 0.012);
+      const impulseFactor = 0.012;
+      const impulseMagnitude = Math.min(impulseFactor * distance, 0.010);
 
       const impulse = direction.multiplyScalar(-impulseMagnitude);
 
       // console.log("distance:", distance);
       // console.log("impulseMagnitude:", impulseMagnitude);
       // console.log("impulse:", impulse);
-
       // 0.005094961215589478
 
       impulse.y = 0;
@@ -116,12 +121,11 @@ export const Experience = () => {
       draggedCapsule.applyImpulse(impulse, true);
 
       if (useGameStore.getState().gameState > 0)
-        nextTurnInterval = setInterval(onNextTurnInterval, 4000);
+        nextTurnInterval = setInterval(onNextTurnInterval, 2500);
     }
 
     setDraggedCapsule(null);
     setIsDragging(false);
-    // window.removeEventListener("mousemove", handleMouseMove);
   };
 
   const onEnterScoreZone = (e) => {
@@ -142,8 +146,6 @@ export const Experience = () => {
       removeWithinScoreZone(e.other.rigidBodyObject.name);
     }
   };
-
-  const draggingPlane = useRef();
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -199,19 +201,21 @@ export const Experience = () => {
         <CuboidCollider
           args={[1.6, 0.25, 0.33]}
           sensor
-          onIntersectionEnter={(e) => onEnterScoreZone(e)}
-          onIntersectionExit={(e) => onExitScoreZone(e)}
+          onIntersectionEnter={onEnterScoreZone}
+          onIntersectionExit={onExitScoreZone}
         />
       </RigidBody>
 
       {gameState === 3 && (
         <NesCapsulePlaceholder
           ref={setCapsulePlaceholderRef}
-          position={[0, 1.9, -2.5]}
           name="capsulePlaceholder"
+          position={[0, 1.9, -2.5]}
           color={playerColors[useGameStore.getState().playingPlayer.slot - 1]}
         />
       )}
+
+      <DragLine draggingPlane={draggingPlane} />
 
       <Plane
         name="draggingPlane"
@@ -219,7 +223,7 @@ export const Experience = () => {
         args={[1000, 1000]}
         position={[0, 1.8, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
-        onPointerUp={(e) => shootAction(e)}
+        onPointerUp={shootAction}
       >
         <meshBasicMaterial attach="material" transparent opacity={0} />
       </Plane>
