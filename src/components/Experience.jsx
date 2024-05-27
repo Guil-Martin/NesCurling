@@ -107,13 +107,15 @@ export const Experience = () => {
       const distance = capsuleV.distanceTo(rayTargetV);
 
       const impulseFactor = 0.012;
-      const impulseMagnitude = Math.min(impulseFactor * distance, 0.010);
+      const impulseMagnitude = Math.min(impulseFactor * distance, 0.01);
 
       const impulse = direction.multiplyScalar(-impulseMagnitude);
 
       // console.log("distance:", distance);
       // console.log("impulseMagnitude:", impulseMagnitude);
+      // console.log("impulseFactor * distance:", impulseFactor * distance);
       // console.log("impulse:", impulse);
+
       // 0.005094961215589478
 
       impulse.y = 0;
@@ -238,9 +240,9 @@ export const Experience = () => {
       >
         <meshBasicMaterial
           attach="material"
-          color={"yellow"}
+          opacity={gameState === 3 ? 0.5 : 0}
+          color="grey"
           transparent
-          opacity={gameState === 3 ? 1 : 0}
         />
       </Plane>
 

@@ -34,15 +34,24 @@ const DragLine = ({ draggingPlane }) => {
     }
   };
 
+  const handleTouchMove = (event) => {
+    if (event.touches && event.touches.length > 0) {
+      const touch = event.touches[0];
+      handlePointerMove({ clientX: touch.clientX, clientY: touch.clientY });
+    }
+  };
+
   useEffect(() => {
     if (!isDragging) {
       setLineEnd(null);
       return;
     }
     window.addEventListener("mousemove", handlePointerMove);
+    window.addEventListener("touchmove", handleTouchMove);
     return () => {
       window.removeEventListener("mousemove", handlePointerMove);
-      document.body.style.cursor = 'default';
+      window.removeEventListener("touchmove", handleTouchMove);
+      document.body.style.cursor = "default";
     };
   }, [isDragging]);
 
@@ -50,14 +59,14 @@ const DragLine = ({ draggingPlane }) => {
     if (!lineStart || !lineEnd) return "blue";
 
     const distance = lineStart.distanceTo(lineEnd);
-    const maxDistance = 0.8;
+    const maxDistance = 0.5;
 
-    let color = new Color(0x0000ff);
+    let color = new Color("#04ff00");
 
     if (distance <= maxDistance / 2) {
-      color.lerp(new Color(0xffff00), distance / (maxDistance / 2)); // Interpolate to Yellow
+      color.lerp(new Color("#ffbb00"), distance / (maxDistance / 2)); // Interpolate to Orange
     } else {
-      color = new Color(0xffff00);
+      color = new Color("#ffbb00");
       color.lerp(
         new Color(0xff0000),
         (distance - maxDistance / 2) / (maxDistance / 2)
@@ -77,9 +86,9 @@ const DragLine = ({ draggingPlane }) => {
           ]}
           color={calculateLineColor()}
           lineWidth={3}
-          dashed
-          dashSize={0.05}
-          gapSize={0.02}
+          // dashed
+          // dashSize={0.05}
+          // gapSize={0.02}
         />
       )}
     </>
