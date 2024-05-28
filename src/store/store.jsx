@@ -191,20 +191,18 @@ export const useGameStore = create((set, get) => ({
 
       // Players spend all their capsules this round, set next round
       if (!capsulesRemain.length) {
-        // Count the points for this round
         const winCap = turnResult.length && turnResult[0];
+        const roundWinner = winCap ? winCap.userData.owner.slot : undefined;
+        // Count the points for this round
+        let nbPoints = 0;
         if (winCap) {
-          let nbPoints = 0;
           for (let i = 0; i < turnResult.length; i++) {
-            if (
-              turnResult[i].userData.owner.slot === winCap.userData.owner.slot
-            )
-              nbPoints++;
+            if (turnResult[i].userData.owner.slot === roundWinner) nbPoints++;
             else break;
           }
 
-          get().score[winCap.userData.owner.slot - 1] =
-            get().score[winCap.userData.owner.slot - 1] + nbPoints;
+          get().score[roundWinner - 1] =
+            get().score[roundWinner - 1] + nbPoints;
         }
 
         const winner = get().score.find((sc) => sc >= get().scoreToWin);
@@ -225,14 +223,34 @@ export const useGameStore = create((set, get) => ({
 
           get().setGameState(5);
         } else {
-          set({ round: get().round + 1 });
-          get().removeCapsule();
           get().players.forEach((player) => {
             player.remaining = get().nbCapsules;
           });
-          get().setPlayingPlayer(get().players[0]);
+
+          const firstToPlaySlot = get().score.reduce(
+            (maxIndex, currentValue, currentIndex, array) => {
+              return currentValue > array[maxIndex] ? currentIndex : maxIndex;
+            },
+            0
+          );
+
+          set({
+            round: get().round + 1,
+            endRoundMsg:
+              "Manche " +
+              get().round +
+              ": " +
+              (roundWinner
+                ? get().players[roundWinner - 1].name +
+                  " marque " +
+                  nbPoints +
+                  " point(s)"
+                : "personne ne marque !"),
+            playingPlayer: get().players[firstToPlaySlot],
+            gameState: 3,
+          });
+          get().removeCapsule();
           get().setCameraAngle(3);
-          get().setGameState(3);
         }
       } else {
         // slot next player in line to play
@@ -289,10 +307,13 @@ export const useGameStore = create((set, get) => ({
             }
           }
         }
-        get().setPlayingPlayer(get().players[nextInLineSlot]);
-        get().setTurn(get().turn + 1);
+        set({
+          endRoundMsg: "",
+          playingPlayer: get().players[nextInLineSlot],
+          turn: get().turn + 1,
+          gameState: 3,
+        });
         get().setCameraAngle(3);
-        get().setGameState(3);
       }
     }
   },
@@ -307,6 +328,9 @@ export const useGameStore = create((set, get) => ({
     get().removeCapsule();
     get().setGameState(0);
   },
+
+  endRoundMsg: "",
+  setEndRoundMsg: (msg) => set({ endRoundMsg: msg }),
 
   isDragging: false,
   setIsDragging: (dragging) => set({ isDragging: dragging }),

@@ -6,6 +6,7 @@ import UIWinner from "./UIWinner";
 import UITraining from "./UITraining";
 import UIGameHistory from "./UIGameHistory";
 import UICameraAngles from "./UICameraAngles";
+import UIPlayerToPlay from "./UIPlayerToPlay";
 
 const MainUI = () => {
   const gameState = useGameStore((state) => state.gameState);
@@ -29,6 +30,7 @@ const MainUI = () => {
       {gameState > 0 && <UIInfos />}
       {gameState === 0 && <UITraining />}
       {gameState === 0 && <UIGameHistory />}
+      {gameState === 3 && <UIPlayerToPlay />}
       {gameState === 5 && <UIWinner />}
 
       {gameState === 0 && (
