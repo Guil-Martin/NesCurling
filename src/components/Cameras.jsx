@@ -7,6 +7,17 @@ const Cameras = () => {
   const setOrbitControlsRef = useGameStore(
     (state) => state.setOrbitControlsRef
   );
+  const orbitControlsRef = useGameStore(
+    (state) => state.orbitControlsRef
+  );
+
+  const minY = 2.5;
+  const handleCameraChange = () => {
+    const camera = orbitControlsRef.object;
+    if (camera.position.y < minY) {
+      camera.position.y = minY;
+    }
+  };
 
   return (
     <>
@@ -17,11 +28,12 @@ const Cameras = () => {
         ref={setMainCameraRef}
       />
       <OrbitControls
-        // enabled={!isDragging && gameState !== 1}
+        onChange={handleCameraChange}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI * 0.36}
         enabled={!isDragging}
         ref={setOrbitControlsRef}
       />
-      {/* <CameraPositionHelper event={"mousedown"} /> */}
     </>
   );
 };

@@ -332,8 +332,6 @@ export const useGameStore = create((set, get) => ({
       ],
     }),
   removeCapsule: () => {
-    set({ withinScoreZone: [] });
-    set({ capsuleRefs: [] });
-    set({ capsules: [] });
+    set({ withinScoreZone: [], capsuleRefs: [], capsules: [] });
   },
 }));
