@@ -196,12 +196,12 @@ export const Experience = () => {
 
       <RigidBody
         name="scoreZone"
-        position={[0, 2, 2.667]}
+        position={[0, 2, 2.462]}
         type="fixed"
         ref={setScoreZoneRef}
       >
         <CuboidCollider
-          args={[1.6, 0.25, 0.33]}
+          args={[1.6, 0.25, 0.537]}
           sensor
           onIntersectionEnter={onEnterScoreZone}
           onIntersectionExit={onExitScoreZone}
@@ -233,8 +233,8 @@ export const Experience = () => {
       <Plane
         name="placingPlane"
         ref={setPlacementPlaneRef}
-        args={[3.01, 0.53]}
-        position={[0, 1.832, -2.61]}
+        args={[2.69, 0.92]}
+        position={[0, 1.832, -2.385]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerDown={placeCapsule}
       >

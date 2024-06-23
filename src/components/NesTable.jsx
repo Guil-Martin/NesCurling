@@ -11,7 +11,7 @@ export function NesTable(props) {
   return (
     <group {...props} dispose={null}>
       <mesh
-        geometry={nodes.nesTable_basic.geometry}
+        geometry={nodes.nesTable.geometry}
         material={materials.M_table}
       />
     </group>

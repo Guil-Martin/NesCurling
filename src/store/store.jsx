@@ -175,23 +175,86 @@ export const useGameStore = create((set, get) => ({
 
   turn: 0,
   setTurn: (newTurn) => set({ turn: newTurn }),
+  determineNextPlayer: (inZoneCapsules) => {
+    const currentPlayerSlot = get().playingPlayer.slot - 1; // Adjust slot to zero-based index
+    const players = get().players;
+
+    // Initialize the next player, current player if capsule remaining, otherwise next player in line
+    let nextPlayer =
+      players[currentPlayerSlot].remaining > 0
+        ? players[currentPlayerSlot]
+        : currentPlayerSlot === players.length - 1
+          ? players[0]
+          : players[currentPlayerSlot + 1];
+
+    // console.log("============== nextPlayer", nextPlayer);
+
+    // Iterate through all players starting from the current player
+    for (let i = 1; i <= players.length; i++) {
+      const playerIndex = (currentPlayerSlot + i) % players.length;
+      const player = players[playerIndex];
+
+      // console.log("Iterate next player -> ", player);
+
+      // Check if the player has any capsules left to play
+      const capsuleRemaining = player.remaining > 0;
+      if (!capsuleRemaining) continue;
+
+      // Prioritize players who haven't played any capsules in this round
+      if (player.remaining === get().nbCapsules) {
+        nextPlayer = player;
+        break;
+      }
+
+      // nextPlayer has no capsule, no point of comparing
+      if (!(nextPlayer.remaining > 0)) {
+        nextPlayer = player;
+        continue;
+      }
+
+      // Check if the player has a capsule in the score zone
+      const bestCapsule = inZoneCapsules.find(
+        (capsule) => capsule.userData.owner.slot === player.slot
+      );
+
+      // If the player has a capsule in the score zone and it's closer to the edge than the nextPlayer's capsule
+      if (bestCapsule) {
+        const nextPlayerBestCapsule = inZoneCapsules.find(
+          (capsule) => capsule.userData.owner.slot === nextPlayer.slot
+        );
+
+        const bestCapsuleDistance = bestCapsule.translation().z;
+        let nextPlayerBestCapsuleDistance = -Infinity;
+        if (nextPlayerBestCapsule) {
+          nextPlayerBestCapsuleDistance = nextPlayerBestCapsule.translation().z;
+        }
+
+        if (bestCapsuleDistance < nextPlayerBestCapsuleDistance) {
+          nextPlayer = player;
+        }
+      } else {
+        // If there are no capsules in the score zone, choose the next player with capsules left to play
+        nextPlayer = player;
+        break;
+      }
+    }
+
+    return nextPlayer; //get().players.findIndex((player) => player.slot === nextPlayer.slot);
+  },
   endTurn: () => {
     // Check if game started
     if (get().gameState > 0) {
-      // const nbPlayers = get().players.length;
-
-      const currentPlayerSlot = get().playingPlayer.slot;
       get().playingPlayer.remaining -= 1;
 
       const turnResult = get().checkWithingScoreZone();
 
-      let capsulesRemain = get().players.filter(
+      const capsulesRemain = get().players.some(
         (player) => player.remaining !== 0
       );
 
       // Players spend all their capsules this round, set next round
-      if (!capsulesRemain.length) {
-        const winCap = turnResult.length && turnResult[0];
+      if (!capsulesRemain) {
+        const winCap = turnResult.length ? turnResult[0] : null;
         const roundWinner = winCap ? winCap.userData.owner.slot : undefined;
         // Count the points for this round
         let nbPoints = 0;
@@ -239,7 +302,7 @@ export const useGameStore = create((set, get) => ({
             endRoundMsg:
               "Manche " +
               get().round +
-              ": " +
+              " : " +
               (roundWinner
                 ? get().players[roundWinner - 1].name +
                   " marque " +
@@ -253,63 +316,10 @@ export const useGameStore = create((set, get) => ({
           get().setCameraAngle(3);
         }
       } else {
-        // slot next player in line to play
-        let nextInLineSlot = get().players.find(
-          (player) =>
-            player.remaining > 0 &&
-            currentPlayerSlot !== get().players.length &&
-            player.slot > currentPlayerSlot
-        );
-
-        // Set index for the player next in line
-        nextInLineSlot =
-          nextInLineSlot !== undefined
-            ? get().players.indexOf(nextInLineSlot)
-            : 0;
-
-        // Set array of players that have at least one capsule outside the zone
-        const outsideOfScoreZone = get().players.filter((player) =>
-          turnResult.every(
-            (cap) =>
-              player.slot !== cap.userData.owner.slot && player.remaining > 0
-          )
-        );
-
-        if (outsideOfScoreZone) {
-          // Is one of the outside of the zone players is the scheduled next player ?
-          const isNextInline = outsideOfScoreZone.find(
-            (player) =>
-              player.slot === nextInLineSlot + 1 && player.remaining > 0
-          );
-
-          // If not, find the player with the next slot in line
-          if (!isNextInline) {
-            const nextSlot = outsideOfScoreZone.find(
-              (player) =>
-                (player.slot === get().players.length &&
-                  player.slot >= nextInLineSlot) ||
-                player.slot >= nextInLineSlot
-            );
-
-            if (nextSlot) {
-              nextInLineSlot = get().players.indexOf(nextSlot);
-            } else {
-              // Every player has a capsule in the score zone, set the player that has the farthest capsule from the edge
-              for (let i = turnResult.length - 1; i >= 0; i--) {
-                const owner = turnResult[i].userData.owner;
-                if (owner.remaining > 0) {
-                  nextInLineSlot = get().players.findIndex(
-                    (player) => player.slot === owner.slot
-                  );
-                  break;
-                }
-              }
-            }
-          }
-        }
+        const nextPlayer = get().determineNextPlayer(turnResult);
         set({
           endRoundMsg: "",
-          playingPlayer: get().players[nextInLineSlot],
+          playingPlayer: nextPlayer, //get().players[nextInLineSlot],
           turn: get().turn + 1,
           gameState: 3,
         });
