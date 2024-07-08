@@ -5,7 +5,7 @@ import { Vector2, Vector3, Raycaster } from "three";
 import { NesCapsule } from "./NesCapsule";
 import { NesTable } from "./NesTable";
 import { useGameStore } from "../store/store";
-import { Level_office } from "../levels/level_office";
+import { Level_office } from "../levels/Level_office";
 import { NesCapsulePlaceholder } from "./NesCapsulePlaceholder";
 import { playerColors } from "../utils/gameData";
 import DragLine from "./DragLine";
